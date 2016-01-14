@@ -1,6 +1,8 @@
 package br.com.tdm.converterparamoeda;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -19,15 +21,34 @@ public class MainActivity extends ActionBarActivity {
     EditText edt_qtde;
     TextView view_reais;
 
+    SharedPreferences arqDeDadosDaCotacao;
 
-    private Double cotacao;
-    private Double valorMoeda;
-    private Double reais;
+
+    private float cotacao;
+    private float valorMoeda;
+    private float reais;
+
+    final static String NOME_FILE = "convertermoeda";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        arqDeDadosDaCotacao = getSharedPreferences(NOME_FILE, MODE_PRIVATE);
+
+        cotacao = arqDeDadosDaCotacao.getFloat("cotacao",0);
+
+        if (cotacao != 0) {
+
+            edt_cotacao = (EditText) findViewById(R.id.edt_cotacao);
+
+            edt_cotacao.setText(cotacao+"");
+
+
+        }
+
+
 
         calcular = (Button) findViewById(R.id.btn_calcular);
 
@@ -35,18 +56,7 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
 
-                edt_cotacao = (EditText) findViewById(R.id.edt_cotacao);
-                edt_qtde =  (EditText) findViewById(R.id.edt_qtde);
-                view_reais = (TextView) findViewById(R.id.txfld_moedareais);
-
-
-                cotacao = Double.parseDouble( edt_cotacao.getText());
-                valorMoeda = Double.parseDouble(edt_qtde.getText());
-
-                reais  = valorMoeda / cotacao;
-
-                view_reais.setText(reais.toString());
-
+            calcular();
 
             }
         });
@@ -54,6 +64,27 @@ public class MainActivity extends ActionBarActivity {
 
     }
 
+
+    private void calcular(){
+
+        edt_cotacao = (EditText) findViewById(R.id.edt_cotacao);
+        edt_qtde =  (EditText) findViewById(R.id.edt_qtde);
+        view_reais = (TextView) findViewById(R.id.txfld_valorreais);
+
+
+        cotacao = Float.parseFloat( edt_cotacao.getText().toString());
+        valorMoeda = Float.parseFloat(edt_qtde.getText().toString());
+
+        reais  = valorMoeda * cotacao;
+
+        view_reais.setText(reais+"");
+
+        Editor editor = arqDeDadosDaCotacao.edit();
+
+        editor.putFloat("cotacao",cotacao);
+        editor.commit();
+
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
